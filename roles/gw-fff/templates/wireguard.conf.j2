@@ -1,0 +1,13 @@
+[Interface]
+PrivateKey = {{ item.value.secret_key }}
+ListenPort = {{ item.value.listen_port }}
+
+{% for peer in item.value.peers %}
+
+[Peer]
+PublicKey = {{ peer.public_key }}
+AllowedIPs = {{ peer.allowed_ips }}
+Endpoint = {{ peer.endpoint }}
+PersistentKeepalive = {{ peer.persistent_keepalive }}
+
+{% endfor %}

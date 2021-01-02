@@ -1,0 +1,6 @@
+---
+- hosts:
+  - fff
+  roles:
+  - { role: gw-fff }
+

@@ -1,0 +1,129 @@
+---
+# tasks file for gw-fff
+
+# Until there is no package available build babeld manual
+# git clone https://github.com/jech/babeld
+# cd babeld
+# git checkout babeld-1.9.2
+#
+# make clean
+# make
+# sudo make install
+
+
+# Packages
+- name: Ensure apt cache is up to date
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+- name: Ensure aptitude is installed
+  apt:
+    name: aptitude
+    state: latest
+
+- name: Ensure packages are installed
+  apt:
+    pkg:
+    - vim
+    - git
+    - linux-headers-amd64
+    - wireguard
+    - build-essential
+    state: latest
+
+# Wireguard
+- name: "Generate wireguard config"
+  template:
+    src: wireguard.conf.j2
+    dest: "/etc/wireguard/{{ item.iface }}.conf"
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o="
+  loop: "{{ gw_fff_wireguard | dict2items(key_name='iface') }}"
+  no_log: true
+
+- name: "Generate wg interface config"
+  template:
+    src: wg-interfaces.j2
+    dest: "/etc/network/interfaces.d/{{ item.iface }}"
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+  loop: "{{ gw_fff_wireguard | dict2items(key_name='iface') }}"
+  no_log: true
+
+# Network
+- name: Ensure enabled IPv4 forwarding
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: "1"
+    sysctl_set: yes
+    reload: yes
+    state: present
+    sysctl_file: /etc/sysctl.d/10-fff.conf
+    
+- name: Ensure enabled IPv6 forwarding
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: "1"
+    sysctl_set: yes
+    reload: yes
+    state: present
+    sysctl_file: /etc/sysctl.d/10-fff.conf
+
+- name: Ensure enabled icmp_errors_use_inbound_ifaddr
+  sysctl:
+    name: net.ipv4.icmp_errors_use_inbound_ifaddr
+    value: "1"
+    sysctl_set: yes
+    reload: yes
+    state: present
+    sysctl_file: /etc/sysctl.d/10-fff.conf
+
+- name: Ensure enabled fff routing table
+  lineinfile:
+    path: /etc/iproute2/rt_tables
+    regexp: '^10\s*fff'
+    line: '10     fff'
+    state: present
+
+
+- name: Generate lo interface config"
+  template:
+    src: lo-interfaces.j2
+    dest: /etc/network/interfaces.d/01_fff_lo
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+
+
+- name: Ensure babeld systend service is installed
+  file:
+    src: babeld.service
+    dest: /etc/systemd/system/babeld.service
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+
+- name: Ensure babeld default is installed
+  file:
+    src: babeld.default
+    dest: /etc/default/babeld
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+
+- name: Ensure babeld config is installed
+  template:
+    src: babeld.conf.j2
+    dest: /etc/babeld.conf
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+
+- name: enable babeld systemd service
+  systemd:
+    state: restarted
+    daemon_reload: yes
+    name: babeld

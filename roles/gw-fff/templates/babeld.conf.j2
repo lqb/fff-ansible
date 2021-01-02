@@ -1,0 +1,32 @@
+# For more information about this configuration file, refer to
+# babeld(8)
+
+# Überschneidung der Tabellen für Source-Specific IPv4 Routing und der fff-Tabelle verhindern
+first-table-number 100
+
+# Defaultwerte für die Schnittstellen setzen:
+default type tunnel max-rtt-penalty 128
+
+{% for peer in gw_fff_babel %}
+#Interface definieren auf denen Babeld läuft
+interface {{ peer.interface }}
+
+#Schnittstellenspezifische Optionen setzen:
+interface {{ peer.interface }} type {{ peer.type }} rxcost {{ peer.rxcost }}
+{% endfor %}
+
+export-table 10
+import-table 10
+
+# redistribute rules
+## Filter für lokalen Routen (siehe ip route show tab local), die im Babel announced werden.
+redistribute local ip 10.50.0.0/16
+redistribute local ip 10.83.0.0/16
+redistribute local ip fd43:5602:29bd::/48
+redistribute local deny
+## Filter für Routen aus fff, die announced werden sollen.
+redistribute ip 10.50.0.0/16
+redistribute ip 10.83.0.0/16
+redistribute ip fd43:5602:29bd::/48
+
+local-port 33123

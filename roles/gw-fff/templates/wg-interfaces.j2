@@ -1,0 +1,23 @@
+auto {{ item.iface }}
+iface {{ item.iface }} inet6 static
+	address {{ item.value.ip6_address }}
+
+	# initialize wireguard
+	pre-up ip link add $IFACE type wireguard
+	pre-up wg setconf $IFACE /etc/wireguard/$IFACE.conf
+	post-down ip link del $IFACE
+
+	# Enable Multicast for Babel
+	pre-up ip link set dev $IFACE multicast on
+
+	# iif rules
+	post-up ip -6 rule add iif $IFACE prio 200 table fff
+	pre-down ip -6 rule add iif $IFACE prio 200 table fff
+
+iface {{ item.iface }} inet static
+	address {{ item.value.ip4_address }}
+	scope link
+
+	# iif rules
+	post-up ip -4 rule add iif $IFACE prio 200 table fff
+	pre-down ip -4 rule add iif $IFACE prio 200 table fff
