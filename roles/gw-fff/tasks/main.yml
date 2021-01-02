@@ -30,6 +30,7 @@
     - linux-headers-amd64
     - wireguard
     - build-essential
+    - netcat-openbsd
     state: latest
 
 # Wireguard
