@@ -31,6 +31,9 @@
     - wireguard
     - build-essential
     - netcat-openbsd
+    - tcpdump
+    - nmap
+    - whois
     state: latest
 
 # Wireguard
@@ -99,8 +102,8 @@
     mode: "u=rw,g=r,o=r"
 
 
-- name: Ensure babeld systend service is installed
-  file:
+- name: Ensure babeld systemd service is installed
+  copy:
     src: babeld.service
     dest: /etc/systemd/system/babeld.service
     owner: root
@@ -108,7 +111,7 @@
     mode: "u=rw,g=r,o=r"
 
 - name: Ensure babeld default is installed
-  file:
+  copy:
     src: babeld.default
     dest: /etc/default/babeld
     owner: root
@@ -127,4 +130,5 @@
   systemd:
     state: restarted
     daemon_reload: yes
+    enabled: yes
     name: babeld

@@ -1,4 +1,6 @@
 auto {{ item.iface }}
+
+{% if item.value.ip6_address is defined and item.value.ip6_address|length %}
 iface {{ item.iface }} inet6 static
 	address {{ item.value.ip6_address }}
 
@@ -14,6 +16,9 @@ iface {{ item.iface }} inet6 static
 	post-up ip -6 rule add iif $IFACE prio 200 table fff
 	pre-down ip -6 rule add iif $IFACE prio 200 table fff
 
+{% endif %}
+
+{% if item.value.ip4_address is defined and item.value.ip4_address|length %}
 iface {{ item.iface }} inet static
 	address {{ item.value.ip4_address }}
 	scope link
@@ -21,3 +26,9 @@ iface {{ item.iface }} inet static
 	# iif rules
 	post-up ip -4 rule add iif $IFACE prio 200 table fff
 	pre-down ip -4 rule add iif $IFACE prio 200 table fff
+
+        {% if item.value.ip4_network is defined and item.value.ip4_network|length %}
+        up ip route replace {{ item.value.ip4_network }} dev $IFACE proto static table fff
+        down ip route del {{ item.value.ip4_network }} dev $IFACE proto static table fff
+        {% endif %}
+{% endif %}

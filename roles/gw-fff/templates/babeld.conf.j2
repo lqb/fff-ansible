@@ -1,6 +1,8 @@
 # For more information about this configuration file, refer to
 # babeld(8)
 
+random-id true
+
 # Überschneidung der Tabellen für Source-Specific IPv4 Routing und der fff-Tabelle verhindern
 first-table-number 100
 
@@ -9,8 +11,7 @@ default type tunnel max-rtt-penalty 128
 
 {% for peer in gw_fff_babel %}
 #Interface definieren auf denen Babeld läuft
-interface {{ peer.interface }}
-
+#interface {{ peer.interface }}
 #Schnittstellenspezifische Optionen setzen:
 interface {{ peer.interface }} type {{ peer.type }} rxcost {{ peer.rxcost }}
 {% endfor %}

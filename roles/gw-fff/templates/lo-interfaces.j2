@@ -1,5 +1,6 @@
 iface lo inet static
-        address {{ gw_fff_network.ip4.address }}
+        #address 127.0.0.1/32
+        address {{ gw_fff_wireguard.wg0.ip4_address }}
 
         up ip -4 rule add to 10.0.0.0/8 prio 500 lookup fff
         down ip -4 rule del to 10.0.0.0/8 prio 500 lookup fff
@@ -8,8 +9,13 @@ iface lo inet static
         up ip -4 rule add to 172.20.0.0/14 prio 500 lookup fff
         down ip -4 rule del to 172.20.0.0/14 prio 500 lookup fff
 
-#iface lo inet6 static
-#        address {{ gw_fff_network.ip6.address }}
-#
-#        up ip -6 rule add to fc00::/7 prio 500 lookup fff
-#        down ip -6 rule del to fc00::/7 prio 500 lookup fff
+        up ip -4 rule add from 10.0.0.0/8 prio 32764 lookup fff
+        down ip -4 rule add from 10.0.0.0/8 prio 32764 lookup fff
+
+iface lo inet6 static
+        #address ::1/128
+        address {{ gw_fff_wireguard.wg0.ip6_address }}
+
+        up ip -6 rule add to fc00::/7 prio 500 lookup fff
+        down ip -6 rule del to fc00::/7 prio 500 lookup fff
+
