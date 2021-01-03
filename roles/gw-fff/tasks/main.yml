@@ -1,4 +1,5 @@
 ---
+
 # tasks file for gw-fff
 
 # Until there is no package available build babeld manual
@@ -49,13 +50,13 @@
 
 - name: "Generate wg interface config"
   template:
-    src: wg-interfaces.j2
+    src: "{{ item.value.interface_template | default('wg-interfaces.j2') }}"
     dest: "/etc/network/interfaces.d/{{ item.iface }}"
     owner: root
     group: root
     mode: "u=rw,g=r,o=r"
   loop: "{{ gw_fff_wireguard | dict2items(key_name='iface') }}"
-  no_log: true
+#  no_log: true
 
 # Network
 - name: Ensure enabled IPv4 forwarding
@@ -91,16 +92,6 @@
     regexp: '^10\s*fff'
     line: '10     fff'
     state: present
-
-
-- name: Generate lo interface config"
-  template:
-    src: lo-interfaces.j2
-    dest: /etc/network/interfaces.d/01_fff_lo
-    owner: root
-    group: root
-    mode: "u=rw,g=r,o=r"
-
 
 - name: Ensure babeld systemd service is installed
   copy:
