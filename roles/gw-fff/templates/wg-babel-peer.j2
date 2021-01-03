@@ -1,57 +1,22 @@
 auto {{ item.iface }}
-
-{% if item.value.ip6_address is defined and item.value.ip6_address|length %}
-iface {{ item.iface }} inet6 static
-	address {{ item.value.ip6_address }}
-
-	# initialize wireguard
-	pre-up ip link add $IFACE type wireguard
-	pre-up wg setconf $IFACE /etc/wireguard/$IFACE.conf
-	post-down ip link del $IFACE
-
-	# Enable Multicast for Babel
-	pre-up ip link set dev $IFACE multicast on
-
-	# iif rules
-	post-up ip -6 rule add iif $IFACE prio 200 table fff
-	pre-down ip -6 rule add iif $IFACE prio 200 table fff
-
-iface lo inet6 static
-        address {{ item.value.ip6_address }}
-
-        up ip -6 rule add to fc00::/7 prio 500 lookup fff
-        down ip -6 rule del to fc00::/7 prio 500 lookup fff
-{% endif %}
-
-{% if item.value.ip4_address is defined and item.value.ip4_address|length %}
 iface {{ item.iface }} inet static
-	address {{ item.value.ip4_address }}
-	scope link
+       address {{ item.value.ip4_address }}
+        # initialize wireguard
+       pre-up ip link add $IFACE type wireguard
+       pre-up wg setconf $IFACE /etc/wireguard/$IFACE.conf
+       post-up ifconfig $IFACE  mtu 1412
+        # babeld
+       pre-up ip link set dev $IFACE multicast on
+       pre-up ip -6 addr add {{ item.value.ip6_address }} dev $IFACE
 
-	# iif rules
-	post-up ip -4 rule add iif $IFACE prio 200 table fff
-	pre-down ip -4 rule add iif $IFACE prio 200 table fff
+        # freifunk rule
+       pre-up ip rule add from all iif $IFACE lookup fff
+       pre-up ip -6 rule add from all iif $IFACE lookup fff
+       post-down ip rule del iif $IFACE table fff
+       post-down ip -6 rule del from all iif $IFACE lookup fff
 
-        {% if item.value.ip4_network is defined and item.value.ip4_network|length %}
-        up ip route replace {{ item.value.ip4_network }} dev $IFACE proto static table fff
-        down ip route del {{ item.value.ip4_network }} dev $IFACE proto static table fff
-        {% endif %}
-
-iface lo inet static
-        address {{ item.value.ip4_address }}
-
-        up ip -4 rule add to 10.0.0.0/8 prio 500 lookup fff
-        down ip -4 rule del to 10.0.0.0/8 prio 500 lookup fff
-
-        #DN42
-        up ip -4 rule add to 172.20.0.0/14 prio 500 lookup fff
-        down ip -4 rule del to 172.20.0.0/14 prio 500 lookup fff
-
-        up ip -4 rule add from 10.0.0.0/8 prio 32764 lookup fff
-        down ip -4 rule add from 10.0.0.0/8 prio 32764 lookup fff
-{% endif %}
-
-
-
-
-
+        # Clamping
+       post-up iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -o $IFACE -j TCPMSS --clamp-mss-to-pmtu
+       post-down iptables -t mangle -D POSTROUTING -p tcp --tcp-flags SYN,RST SYN -o $IFACE -j TCPMSS --clamp-mss-to-pmtu
+       # kill Interface
+       post-down ip link del $IFACE

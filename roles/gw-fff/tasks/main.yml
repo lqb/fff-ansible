@@ -46,7 +46,7 @@
     group: root
     mode: "u=rw,g=r,o="
   loop: "{{ gw_fff_wireguard | dict2items(key_name='iface') }}"
-  no_log: true
+  #no_log: true
 
 - name: "Generate wg interface config"
   template:
@@ -85,6 +85,17 @@
     reload: yes
     state: present
     sysctl_file: /etc/sysctl.d/10-fff.conf
+
+- name: Ensure defaults are set for loopback
+  blockinfile:
+    path: /etc/network/interfaces
+    block: |
+      iface lo inet loopback
+              post-up ip ru add from all to 10.0.0.0/8 lookup fff
+              post-up ip ru add from 10.0.0.0/8 lookup fff
+      #       post-up ip -6 ru add from all to 2a0b:f4c0::/40 lookup fff priority 7500
+      #       post-up ip -6 ru add from all to 2a06:e881:3401::/48 lookup main priority 50
+    marker: "### {mark} ANSIBLE MANAGED BLOCK ###"
 
 - name: Ensure enabled fff routing table
   lineinfile:

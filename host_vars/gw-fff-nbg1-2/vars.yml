@@ -1,0 +1,24 @@
+---
+gw_fff_peer_ip4_address: "10.83.252.116/32"
+gw_fff_peer_ip6_address: "fe80::4c51:4236:1/128"
+
+gw_fff_wireguard:
+  wg_nbg11:
+    secret_key: "{{ vault_gw_fff_wireguard.wg_nbg11.secret_key }}"
+    public_key: 3LQBhIPjqHQk+IL0z9IbReawazzHrSaXWlwdRKz7iTs=
+    listen_port: 51822
+    ip4_address: "{{ gw_fff_peer_ip4_address }}"
+    ip6_address: "{{ gw_fff_peer_ip6_address }}"
+    peers:
+    - public_key: 4LQblVAyGT5lPs0ej1FX3U0Bd719dyl4+whcx7qPNww=
+      endpoint: 78.47.62.125:51822
+      allowed_ips: "0.0.0.0/0, ::0/0"
+      persistent_keepalive: "25"
+    interface_template: wg-babel-peer.j2
+
+
+
+gw_fff_babel:
+  - interface: wg_gw_fff_nbg1_1
+    type: tunnel
+    rxcost: 4096
