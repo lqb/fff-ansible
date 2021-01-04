@@ -45,3 +45,6 @@ gw_fff_babel:
   - interface: wg_jupiter
     type: tunnel
     rxcost: 4096
+  - interface: wg_nbg12
+    type: tunnel
+    rxcost: 4096
