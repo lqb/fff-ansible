@@ -1,0 +1,13 @@
+---
+# handlers file for babel
+- name: Restart loopback device
+  command: bash -c "ifdown lo && ifup lo"
+  listen: "restart loopback"
+
+- name: Restart babeld service
+  systemd:
+    name: babeld.service
+    state: restarted
+    daemon_reload: yes
+    enabled: True
+  listen: "restart babeld"
