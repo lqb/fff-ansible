@@ -1,3 +1,4 @@
 ---
 # defaults file for babel
 babel_rt_name: FreiFunk
+babel_exit_node: False

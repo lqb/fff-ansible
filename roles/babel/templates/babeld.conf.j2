@@ -31,5 +31,9 @@ redistribute ip 10.50.0.0/16
 redistribute ip 10.83.0.0/16
 redistribute ip 10.79.0.0/16
 redistribute ip fd43:5602:29bd::/48
+{% if babel.exit_node | default(False) %}
+# Exit Node
+redistribute ip 0.0.0.0/0 eq 0
+{% endif %}
 
 local-port 33123
