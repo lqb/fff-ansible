@@ -1,0 +1,8 @@
+---
+- hosts:
+  - babelgw
+  roles:
+  - { role: packages }
+  - { role: babel }
+  - { role: wireguard }
+
