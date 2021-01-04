@@ -1,0 +1,8 @@
+---
+# handlers file for wireguard
+
+- name: Restart wireguard devices
+  command: bash -c "ifdown {{ item.interface }} ; ip link delete {{ item.interface }} ; ifup {{ item.interface }}"
+  listen: "restart wireguard interfaces"
+  loop: "{{ wireguard }}"
+

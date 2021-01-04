@@ -1,0 +1,31 @@
+---
+# tasks file for wireguard
+
+# Wireguard
+- name: "Generate wireguard config"
+  template:
+    src: wireguard.conf.j2
+    dest: "/etc/wireguard/{{ item.interface }}.conf"
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o="
+  loop: "{{ wireguard }}"
+  #no_log: true
+  tags:
+  - template
+  notify: "restart wireguard interfaces"
+
+
+- name: "Generate wg interface config"
+  template:
+    src: "{{ item.template | default('wg-interfaces.j2') }}"
+    dest: "/etc/network/interfaces.d/{{ item.interface }}"
+    owner: root
+    group: root
+    mode: "u=rw,g=r,o=r"
+  loop: "{{ wireguard }}"
+  #no_log: true
+  tags:
+  - template
+  notify: "restart wireguard interfaces"
+

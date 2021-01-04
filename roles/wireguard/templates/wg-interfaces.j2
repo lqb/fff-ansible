@@ -1,0 +1,19 @@
+auto {{ item.interface }}
+
+{% if item.ip6.address is defined and item.ip6.address|length %}
+iface {{ item.interface }} inet6 static
+	address {{ item.ip6.address }}
+
+	# initialize wireguard
+	pre-up ip link add $IFACE type wireguard
+	pre-up wg setconf $IFACE /etc/wireguard/$IFACE.conf
+	post-down ip link del $IFACE
+
+{% endif %}
+
+{% if item.ip4.address is defined and item.ip4.address|length %}
+iface {{ item.interface }} inet static
+	address {{ item.ip4.address }}
+	scope link
+
+{% endif %}

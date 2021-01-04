@@ -1,0 +1,22 @@
+auto {{ item.interface }}
+iface {{ item.interface }} inet static
+       address {{ item.ip4.address }}
+
+        # initialize wireguard
+       pre-up ip link add $IFACE type wireguard
+       pre-up wg setconf $IFACE /etc/wireguard/$IFACE.conf
+       post-up ifconfig $IFACE  mtu 1412
+        # babeld
+       pre-up ip link set dev $IFACE multicast on
+       pre-up ip -6 addr add {{ item.ip6.address }} dev $IFACE
+        # freifunk rule
+       pre-up ip rule add from all iif $IFACE lookup {{ babel_rt_name }}
+       pre-up ip -6 rule add from all iif $IFACE lookup {{ babel_rt_name }}
+       post-down ip rule del iif $IFACE table {{ babel_rt_name }}
+       post-down ip -6 rule del from all iif $IFACE lookup {{ babel_rt_name }}
+        # Clamping
+       post-up iptables -t mangle -A POSTROUTING -p tcp --tcp-flags SYN,RST SYN -o $IFACE -j TCPMSS --clamp-mss-to-pmtu
+       post-down iptables -t mangle -D POSTROUTING -p tcp --tcp-flags SYN,RST SYN -o $IFACE -j TCPMSS --clamp-mss-to-pmtu
+        # kill Interface
+       post-down ip link del $IFACE
+
