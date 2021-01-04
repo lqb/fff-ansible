@@ -1,0 +1,59 @@
+---
+babel_rt_name: fff
+
+babel:
+  ip4:
+    address: "10.83.252.115/32"
+  ip6:
+    address: "fe80::4c51:4232:1/128"
+  peers:
+  - interface: wg_jupiter
+    type: tunnel
+    rxcost: 96
+  - interface: wg_lqb_gw2_fff
+    type: tunnel
+    rxcost: 96
+
+wireguard:
+  - interface: wg_jupiter
+    template: wg-babel-peer.j2
+    private_key: "{{ vault_wireguard.wg_jupiter.private_key }}"
+    public_key: 0Lqb11k+bnjuGnkrazXVYTV0r2UJpsZMdRLlqfnN7GQ=
+    listen_port: 51820
+    ip4:
+      address: "{{ babel.ip4.address }}"
+    ip6:
+      address: "{{ babel.ip6.address }}"
+    peers:
+    - public_key: wZ4bZ5b1Xc1izp6RPIHbHxjj1A+OqOzEObhu0WuRmGc=
+      endpoint: jupiter.dresel.systems:31345
+      allowed_ips: "0.0.0.0/0, ::0/0"
+      persistent_keepalive: "25"
+
+  - interface: wg_lqb_gw2_fff
+    template: wg-babel-peer.j2
+    private_key: "{{ vault_wireguard.wg_lqb_gw2_fff.private_key }}"
+    public_key: 4LQblVAyGT5lPs0ej1FX3U0Bd719dyl4+whcx7qPNww=
+    listen_port: 51822
+    ip4:
+      address: "{{ babel.ip4.address }}"
+    ip6:
+      address: "{{ babel.ip6.address }}"
+    peers:
+    - public_key: 3LQBhIPjqHQk+IL0z9IbReawazzHrSaXWlwdRKz7iTs=
+      allowed_ips: "0.0.0.0/0, ::0/0"
+
+  - interface: wg1
+    template: wg-babel-announce.j2
+    private_key: "{{ vault_wireguard.wg1.private_key }}"
+    public_key: 1LQbPGGxRyFSA7ZKBegU36TPkYC1vMf0kF3U17Fh12Y=
+    listen_port: 51821
+    ip4:
+      address: "10.83.9.1/24"
+      network: "10.83.9.0/24"
+    ip6:
+      address: "fe80::4c51:4232:1/64"
+      network: "fe80::4c51:4232:0/64"
+    peers:
+    - public_key: 2lqB+n8qUlvr1QN6Mxm8mH0Qj8hvfZz3AHuK1WGm3SQ=
+      allowed_ips: "10.83.9.0/24"
