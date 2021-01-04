@@ -1,0 +1,59 @@
+---
+babel:
+  exit_node: True
+  ip4:
+    address: "10.79.122.1/32"
+  ip6:
+    address: "fe80::0a:4f:71:1/128"
+  peers:
+  - interface: wg_ex2_bgw
+    type: tunnel
+    rxcost: 96
+  - interface: wg_ex3_gw
+    type: tunnel
+    rxcost: 96
+
+wireguard:
+  - interface: wg_ex2_bgw
+    template: wg-babel-peer.j2
+    private_key: "{{ vault_wireguard.wg_ex2_bgw.private_key }}"
+    public_key: OiL68KzkDsPTw19z+xR0GMPOw7XQVookriGUWoxSWkU=
+    listen_port: 51001
+    ip4:
+      address: "{{ babel.ip4.address }}"
+    ip6:
+      address: "{{ babel.ip6.address }}"
+    peers:
+    - public_key: oil8/9j8Nap/IKiFGLJC7eigehkzT2YzLhYzIsmsLXo=
+      allowed_ips: "0.0.0.0/0, ::0/0"
+      endpoint: "116.202.105.144:51001"
+      persistent_keepalive: "25"
+  - interface: wg_ex3_gw
+    template: wg-babel-peer.j2
+    private_key: "{{ vault_wireguard.wg_ex3_gw.private_key }}"
+    public_key: OIL56+qBFAbydvA24u0/zJGukDWHaNzIzAPrh8ZTGTc=
+    listen_port: 51002
+    ip4:
+      address: "{{ babel.ip4.address }}"
+    ip6:
+      address: "{{ babel.ip6.address }}"
+    peers:
+    - public_key: OIl83cVFS/ZuqeftQZ7g+cbyTkIlOGrOwMy9m5Y2VR4=
+      allowed_ips: "0.0.0.0/0, ::0/0"
+      endpoint: "157.90.25.145:51001"
+      persistent_keepalive: "25"
+  - interface: wg1
+    template: wg-babel-announce.j2
+    private_key: "{{ vault_wireguard.wg1.private_key }}"
+    public_key: oil2069Pfant379+yLNLShoHYeimMmHjigqvhDYVXB4=
+    listen_port: 51003
+    ip4:
+      address: "10.79.101.1/24"
+      network: "10.79.101.0/24"
+    ip6:
+      address: "fe80::0a:4f:65:1/64"
+      network: "fe80::0a:4f:65:0/64"
+    peers:
+    - public_key: 6lQbdTbOzqi3RkjQmEZgHlPOaAuJPHHTkroonIA1GQE=
+      allowed_ips: "10.79.101.0/24, fe80::0a:4f:65:0/64"
+

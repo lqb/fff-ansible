@@ -5,3 +5,7 @@ gw-fff-nbg1-2	ansible_user=root
 [babelgw]
 lqb-gw1-fff	ansible_user=root
 lqb-gw2-fff     ansible_user=root
+ex1-bgw		ansible_user=root
+ex2-bgw		ansible_user=root
+ex3-gw		ansible_user=root
+
