@@ -13,6 +13,11 @@ babel:
   - interface: wg_lqb_gw2_fff
     type: tunnel
     rxcost: 96
+  redistribute:
+  - 10.50.0.0/16
+  - 10.83.0.0/16
+  - fd43:5602:29bd::/48
+
 
 wireguard:
   - interface: wg_jupiter

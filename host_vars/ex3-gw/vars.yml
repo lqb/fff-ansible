@@ -11,6 +11,8 @@ babel:
   - interface: wg_ex2_bgw
     type: tunnel
     rxcost: 96
+  redistribute:
+  - 10.79.0.0/16
 
 wireguard:
   - interface: wg_ex1_bgw
